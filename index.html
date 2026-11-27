@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Plasma Transport Explorer v5.20 | Smooth ORBIT SHAx contours · Marco Gobbin</title>
+<title>Plasma Transport Explorer v5.22 | Smooth ORBIT SHAx contours · Marco Gobbin</title>
 <style>
 :root{--navy:#19225d;--cobalt:#3443ba;--ink:#1d2945;--muted:#60708d;--edge:#dce3ef;--bg:#f3f6fb;--white:#fff;--blue:#2965c5;--orange:#dc8a26;--violet:#684fbd;--green:#218d76}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,'Segoe UI',Arial,sans-serif;color:var(--ink)}
@@ -23,9 +23,16 @@ button,select,input{font:inherit}button{cursor:pointer}.btn{border:1px solid #cc
 .formula{background:#f7f9ff;border:1px solid #e7ebf5;border-radius:8px;padding:12px 13px;color:#32446b;font-size:13px;line-height:1.6}.formula code{font:inherit;font-weight:650;color:#2e43aa}details{margin-top:9px}summary{cursor:pointer;font-weight:700;color:#3749a3;font-size:12px}details p{color:#556781;font-size:12px;line-height:1.65}footer{text-align:center;color:#7786a1;font-size:11px;padding:9px 15px 22px}.disabled{display:none !important}
 .mono{font-variant-numeric:tabular-nums}.yellow{color:#ad650b}
 .orbitlayout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(230px,.85fr);gap:14px;align-items:start}
-.orbitgraph{border:1px solid #e1e7f3;background:#fcfdff;border-radius:10px;padding:5px;min-width:0}.orbitgraph svg{display:block;width:100%;height:auto}
+.orbitgraph{border:1px solid #e1e7f3;background:#fcfdff;border-radius:10px;padding:5px;min-width:0}.orbitgraph svg{display:block;width:100%;height:auto;cursor:crosshair;touch-action:manipulation}
+.orbit-launch-bar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:#f1f6ff;border:1px solid #d9e6fc;border-radius:9px;padding:9px 11px;margin:0 0 12px;color:#294a7b;font-size:12px}
+.orbit-launch-bar strong{font-weight:740}.orbit-launch-bar .btn{font-size:11px;padding:6px 9px}
+.orbit-launch-bar .orbit-launch-position{flex:1;min-width:145px;font-variant-numeric:tabular-nums}
+.orbit-launch-bar .orbit-launch-message{flex-basis:100%;font-size:11px;color:#536b90;line-height:1.5}
+#orbitGraph svg:focus-visible{outline:2px solid #5677d5;outline-offset:-2px}
+.orbit-launch-marker{pointer-events:none}
 .orbitdescription{font-size:12px;line-height:1.68;color:#415370;margin-top:11px}.orbitstatistics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:13px}.orbitstatistics .metric{padding:10px 12px}.orbitstatistics .metric strong{font-size:18px}.orbitstatistics .metric label{min-height:26px}.orbitstatistics .metric small{font-size:10px}
-.orbitcontrol{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.orbitcontrol label{font-size:12px;color:#5b6e91;font-weight:650}.orbitcontrol select{padding:6px 8px;background:#f9fbff;border:1px solid #dce4f2;color:#263956;border-radius:7px;font-size:12px}
+.orbitcontrol{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.orbit-energy-badge{font-size:11px;font-weight:750;border-radius:7px;border:1px solid #d5e2f4;color:#294d89;background:#f0f6ff;padding:7px 10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.orbitcontrol label{font-size:12px;color:#5b6e91;font-weight:650}.orbitcontrol select{padding:6px 8px;background:#f9fbff;border:1px solid #dce4f2;color:#263956;border-radius:7px;font-size:12px}
 .orbitpanel .notice{margin:11px 0}.orbnote{font-size:11px;line-height:1.55;color:#647591}.orbitlegend{display:flex;gap:11px;flex-wrap:wrap;font-size:11px;color:#526580;margin-top:8px}
 @media(max-width:1050px){.orbitlayout{grid-template-columns:1fr}.orbitstatistics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:790px){.orbitlayout{grid-template-columns:1fr}}
@@ -247,7 +254,7 @@ footer{color:#7f8fac;font-size:10.5px;padding-top:12px;padding-bottom:25px}
  <a href="https://doi.org/10.1103/PhysRevLett.105.195006" target="_blank" rel="noopener" style="font-size:11px">Gobbin et al., PRL 105, 195006 (2010)</a>
 </div>
 <div class="field-group" id="bootstrapFields"><h3>Bootstrap: profile assumptions</h3><div id="bsFields"></div><p class="sub" style="font-size:10px;margin:1px 0 5px">n, Tₑ, Tᵢ ∝ [1 − (r/a)²] to adjustable exponents. Values above are specified at the selected r/a.</p></div>
-<div class="field-group"><h3>Guiding-centre orbit example</h3><div id="orbitFields"></div><p class="sub" style="font-size:10px;margin:1px 0 5px">Tokamak: ξ₀=v∥/v at outboard midplane. Stellarator/RFP: ξ₀ at a sampled local |B| minimum in the constructed (not measured) field. Negative values reverse direction of parallel motion.</p></div>
+<div class="field-group"><h3>Guiding-centre orbit example</h3><div id="orbitFields"></div><p class="sub" style="font-size:10px;margin:1px 0 5px"><b>Test-particle energy E₀ is independent of plasma Tₑ and Tᵢ used for transport.</b> E₀ = ½mv² sets initial total kinetic energy, while pitch ξ₀ divides it into parallel and perpendicular motion. The energy slider is logarithmic (0.01–200 keV). Tokamak: ξ₀=v∥/v at the selected launch point (outboard midplane by default). Stellarator/RFP: ξ₀ at the selected 3D-field point (a sampled |B| minimum by default). Negative values reverse parallel motion.</p></div>
 <div class="field-group"><button class="btn" id="reset">Reset to defaults</button><p class="sub">Change any parameter to recalculate values and move the markers on the graph.</p></div>
 </aside>
 <main class="main">
@@ -265,8 +272,9 @@ footer{color:#7f8fac;font-size:10.5px;padding-top:12px;padding-bottom:25px}
 </section>
 <section class="panel orbitpanel" id="orbitPanel">
  <div class="panel-title"><div><h2>Orbit explorer: synchronized 2D and 3D guiding-centre trajectories</h2><p class="sub" id="orbitModelSubtitle" style="margin:5px 0 0">Select Tokamak, Stellarator or RFP to display the corresponding orbit model.</p></div>
-  <div class="orbitcontrol"><label for="orbitSpecies">Particle</label><select id="orbitSpecies"><option value="ion">Main ion</option><option value="electron">Electron</option></select><button class="btn" id="playOrbit">Pause animation</button><button class="btn" id="saveOrbit">Save orbit (SVG)</button></div>
+  <div class="orbitcontrol"><label for="orbitSpecies">Particle</label><select id="orbitSpecies"><option value="ion">Main ion</option><option value="electron">Electron</option></select><span class="orbit-energy-badge" id="orbitEnergyBadge" aria-live="polite">E₀ = 5 keV</span><button class="btn" id="playOrbit">Pause animation</button><button class="btn" id="saveOrbit">Save orbit (SVG)</button></div>
  </div>
+ <div class="orbit-launch-bar" id="orbitLaunchBar"><strong><span aria-hidden="true">✚</span> Choose launch position</strong><span class="orbit-launch-position" id="orbitLaunchPosition">Default starting point</span><button class="btn" type="button" id="resetOrbitLaunch">Reset launch point</button><span class="orbit-launch-message" id="orbitLaunchMessage" aria-live="polite">Click or tap inside the 2D R–Z orbit plot to launch a new trajectory. For 3D fields, the launch plane is φ₀ = 0; the R–Z projection of the trajectory spans all φ.</span></div>
  <div class="orbitlayout"><div><div class="orbitgraph" id="orbitGraph"></div><div class="orbitlegend" id="orbitLegend"></div><div id="orbitWarnings"></div></div>
  <div><div id="orbitStatus" class="tag" style="display:inline-block;margin-bottom:5px">Trapped</div><div id="orbitReadout" class="orbitdescription"></div><p class="orbnote" id="orbitProjectionNote">The 2D and 3D views use the same computed orbit points and are synchronized.</p></div></div>
 
@@ -426,6 +434,13 @@ function wxInitial(c){
  // Start close to B minimum on a demonstrative field line.
  let best={B:Infinity,theta:0,phi:0},max=0;
  const thetaStart=.20,iota=wxIota(u0);
+ const requested=orbitLaunch.stellarator;
+ if(requested){
+  const init=wxCore(requested.u,requested.theta,requested.phi),u1=requested.u,iota1=wxIota(u1);
+  let max1=init.B;
+  for(let i=0;i<=250;i++){const phi=requested.phi+2*Math.PI*i/250,theta=requested.theta+iota1*(phi-requested.phi);max1=Math.max(max1,wxCore(u1,theta,phi).B)}
+  return {u0:u1,best:{B:init.B,theta:requested.theta,phi:requested.phi},max:max1,xiCrit:Math.sqrt(Math.max(0,1-init.B/max1)),iota:iota1};
+ }
  for(let i=0;i<=250;i++){
   const phi=2*Math.PI*i/250,theta=thetaStart+iota*phi,B=wxCore(u0,theta,phi).B;
   if(B<best.B)best={B,theta,phi}; max=Math.max(max,B);
@@ -435,7 +450,7 @@ function wxInitial(c){
 function wxIntegrate(c){
  const p=state,sp=orbitViewer.species==='electron'?c.electron:c.ion;
  const m=orbitViewer.species==='electron'?me:p.A*mp,q=orbitViewer.species==='electron'?-eCharge:p.Z*eCharge;
- const x=wxInitial(c),v=sp.v,xi=p.pitch;
+ const x=wxInitial(c),v=orbitSpeed(m),xi=p.pitch;
  const mu=.5*m*v*v*(1-xi*xi)/x.best.B;
  let y=[x.u0,x.best.theta,x.best.phi,v*xi];
  const Binitial=x.best.B,initialE=.5*m*v*v-q*p.Er*1000*.53*x.u0;
@@ -467,7 +482,7 @@ function wxIntegrate(c){
  const orbitClass=bounces>0?'Mirroring observed':Math.abs(xi)<x.xiCrit?'No reversal yet (mirror candidate)':'No reversal in sampled interval';
  const fieldLine=[];
  for(let i=0;i<=680;i++){const phi=x.best.phi+(i/680)*2*Math.PI,theta=x.best.theta+x.iota*(phi-x.best.phi);fieldLine.push(wxGeometry(x.u0,theta,phi).X)}
- return {points,fieldLine,mu,init:x,energyErr,bounces,stop,dt,duration:(points.length-1)*dt,rMin:.53*uMin,rMax:.53*uMax,transits:Math.abs(thetaTrav)/(2*Math.PI),trapped,ion:sp,phiTravel:phiTrav,xi,orbitClass};
+ return {points,fieldLine,mu,init:x,energyErr,bounces,stop,dt,duration:(points.length-1)*dt,rMin:.53*uMin,rMax:.53*uMax,transits:Math.abs(thetaTrav)/(2*Math.PI),trapped,ion:{...sp,v,rho:orbitGyroradius(v,m,q,x.best.B)},phiTravel:phiTrav,xi,orbitClass};
 }
 function wxProjectionBounds(){
  const pts=[];for(let j=0;j<=60;j++){const phi=2*Math.PI*j/60;for(let i=0;i<16;i++){pts.push(wxBoundaryPoint(i*Math.PI/8,phi));}}
@@ -506,13 +521,16 @@ function wxRenderOrbits(c){
  const main=pts.map((p,i)=>{const v=project(p.X);orbitViewer.path2D[i]=v;return (i?'L':'M')+v.x.toFixed(2)+' '+v.y.toFixed(2)}).join(' ');
  orbitViewer.path2D.length=pts.length;
  const p0=orbitViewer.path2D[0];
- const svg=`<svg id="orbitSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" aria-label="W7-X R-Z projection across all toroidal positions"><rect width="${w}" height="${h}" fill="#fcfdff"/><path d="${boundaryAt(0)}" stroke="#9db2d3" fill="#c8d7ec" fill-opacity=".16" stroke-width="1.6"/><path d="${boundaryAt(Math.PI/5)}" stroke="#baa5cd" fill="none" stroke-width="1.5" stroke-dasharray="6 5"/><path d="${main}" stroke="white" fill="none" stroke-width="6" stroke-linejoin="round"/><path d="${main}" stroke="${color}" fill="none" stroke-width="3.2" stroke-linejoin="round"/><circle id="orbitDot" cx="${p0.x}" cy="${p0.y}" r="7" fill="#203b83" stroke="white" stroke-width="2.6"/><path d="M547 20V360" stroke="#e0e6f0"/><text x="558" y="68" fill="#5b6983" font-size="12">Representation</text><text x="558" y="93" fill="#21375f" font-size="15" font-weight="700">R–Z projection, all φ</text><text x="558" y="139" fill="#5b6983" font-size="12">Magnetic mirror reversals</text><text x="558" y="164" fill="#21375f" font-size="19" font-weight="700">${gc.bounces}</text><text x="558" y="214" fill="#5b6983" font-size="12">|ξ₀| sample mirror estimate</text><text x="558" y="239" fill="#21375f" font-size="19" font-weight="700">${pretty(gc.init.xiCrit)}</text><text x="558" y="290" fill="#5b6983" font-size="12">Modeled radial-label span</text><text x="558" y="315" fill="#21375f" font-size="19" font-weight="700">${lengthFmt(gc.rMax-gc.rMin)}</text><text x="55" y="24" font-size="12" fill="#516580">Two different boundary cuts: φ=0, φ=π/5</text></svg>`;
+ const launchXYZ=pts[0].X;
+ const initialMark=project(launchXYZ);
+ orbitViewer.pickMap={left:40,right:545,top:10,bottom:370,fromSvg:(x,y)=>({R:(x-xc)/sf+(rmn+rmx)/2,Z:(yc-y)/sf+(zmn+zmx)/2})};
+ const svg=`<svg id="orbitSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" aria-label="W7-X R-Z projection across all toroidal positions"><rect width="${w}" height="${h}" fill="#fcfdff"/><path d="${boundaryAt(0)}" stroke="#9db2d3" fill="#c8d7ec" fill-opacity=".16" stroke-width="1.6"/><path d="${boundaryAt(Math.PI/5)}" stroke="#baa5cd" fill="none" stroke-width="1.5" stroke-dasharray="6 5"/><path d="${main}" stroke="white" fill="none" stroke-width="6" stroke-linejoin="round"/><path d="${main}" stroke="${color}" fill="none" stroke-width="3.2" stroke-linejoin="round"/><circle id="orbitDot" cx="${p0.x}" cy="${p0.y}" r="7" fill="#203b83" stroke="white" stroke-width="2.6"/>${launchGlyph(initialMark)}<path d="M547 20V360" stroke="#e0e6f0"/><text x="558" y="68" fill="#5b6983" font-size="12">Representation</text><text x="558" y="93" fill="#21375f" font-size="15" font-weight="700">R–Z projection, all φ</text><text x="558" y="139" fill="#5b6983" font-size="12">Magnetic mirror reversals</text><text x="558" y="164" fill="#21375f" font-size="19" font-weight="700">${gc.bounces}</text><text x="558" y="214" fill="#5b6983" font-size="12">|ξ₀| sample mirror estimate</text><text x="558" y="239" fill="#21375f" font-size="19" font-weight="700">${pretty(gc.init.xiCrit)}</text><text x="558" y="290" fill="#5b6983" font-size="12">Modeled radial-label span</text><text x="558" y="315" fill="#21375f" font-size="19" font-weight="700">${lengthFmt(gc.rMax-gc.rMin)}</text><text x="55" y="24" font-size="12" fill="#516580">Two different boundary cuts: φ=0, φ=π/5</text></svg>`;
  get('orbitGraph').innerHTML=svg;orbitViewer.svg=svg;
  get('orbitLegend').innerHTML=`<span><b class="swatch" style="background:${color}"></b>Synthetic-field GC path (R–Z projection over all φ)</span><span>Boundary curves at φ=0 and φ=π/5 are two separate cuts</span>`;
- get('orbitReadout').innerHTML=`<b>W7-X input-derived boundary geometry, not a VMEC field solution.</b><br>In this sampled trajectory, <b>${gc.orbitClass.toLowerCase()}</b> (${gc.bounces} measured sign changes of v∥). A separate <i>illustrative</i> local-mirror estimate is |ξ₀| &lt; ${pretty(gc.init.xiCrit)}; it is not a W7-X trapping threshold. The 2D plot projects different toroidal phases onto R–Z and is <b>not</b> an orbit drawn in one fixed poloidal plane.<br><br><b>Guiding-centre calculation:</b> mirror force + magnetic drifts in a constructed, tangent, divergence-free 3D field; optional prescribed Eᵣ. It is not a W7-X confinement prediction.`;
- get('orbitMetrics').innerHTML=orbitMetric('Nominal thermal Larmor radius',lengthFmt(gc.ion.rho),'calculated with selected B and species T')+orbitMetric('Model magnetic B minimum',pretty(gc.init.best.B)+' T','along a representative field line')+orbitMetric('Model magnetic B maximum',pretty(gc.init.max)+' T','along the same field line')+orbitMetric('Numerical integration duration',timeFmt(gc.duration),'not an exact bounce period')+orbitMetric('Mirror reversals',String(gc.bounces),'observed in this sample')+orbitMetric('Modeled flux-label span',lengthFmt(gc.rMax-gc.rMin),'0.53 m × Δu; not measured radial transport')+orbitMetric('Model iota',pretty(gc.init.iota),'illustrative; not equilibrium data')+orbitMetric('Local collision frequency',pretty(orbitViewer.species==='electron'?c.nue:c.nui)+' s⁻¹','independent of the collisionless orbit');
+ get('orbitReadout').innerHTML=`<b>Test-particle energy: ${pretty(state.Eorbit)} keV (independent of Tₑ/Tᵢ).</b><br><b>W7-X input-derived boundary geometry, not a VMEC field solution.</b><br>${orbitLaunch.stellarator?'Launch point selected on the φ₀=0 synthetic section; ξ₀ refers to the local magnetic field. ':''}In this sampled trajectory, <b>${gc.orbitClass.toLowerCase()}</b> (${gc.bounces} measured sign changes of v∥). A separate <i>illustrative</i> local-mirror estimate is |ξ₀| &lt; ${pretty(gc.init.xiCrit)}; it is not a W7-X trapping threshold. The 2D plot projects different toroidal phases onto R–Z and is <b>not</b> an orbit drawn in one fixed poloidal plane.<br><br><b>Guiding-centre calculation:</b> mirror force + magnetic drifts in a constructed, tangent, divergence-free 3D field; optional prescribed Eᵣ. It is not a W7-X confinement prediction.`;
+ get('orbitMetrics').innerHTML=orbitMetric('Test-particle energy E₀',pretty(state.Eorbit)+' keV','independent of plasma temperature')+orbitMetric('Initial Larmor radius ρ₀',lengthFmt(gc.ion.rho),'test-particle speed and local B')+orbitMetric(orbitLaunch.stellarator?'Magnetic B at chosen launch':'Sampled magnetic B minimum',pretty(gc.init.best.B)+' T',orbitLaunch.stellarator?'local value in synthetic model':'minimum along a representative field line')+orbitMetric('Sampled model B maximum',pretty(gc.init.max)+' T','along a field line through the launch surface')+orbitMetric('Numerical integration duration',timeFmt(gc.duration),'not an exact bounce period')+orbitMetric('Mirror reversals',String(gc.bounces),'observed in this sample')+orbitMetric('Modeled flux-label span',lengthFmt(gc.rMax-gc.rMin),'0.53 m × Δu; not measured radial transport')+orbitMetric('Model iota',pretty(gc.init.iota),'illustrative; not equilibrium data')+orbitMetric('Local collision frequency',pretty(orbitViewer.species==='electron'?c.nue:c.nui)+' s⁻¹','independent of the collisionless orbit');
  get('orbitEquations').innerHTML='<p>Truncated W7-X input boundary: R(θ,φ)=ΣR<sub>mn</sub>cos(mθ−5nφ), Z(θ,φ)=ΣZ<sub>mn</sub>sin(mθ−5nφ), extracted from a public VMEC++ W7-X input. Interior model surfaces retain only the leading m≤1 harmonics and are not true flux surfaces; the true VMEC interior solution is <b>not</b> used.</p><p>The pedagogical field is tangent to modeled surfaces, with B ∝ [X<sub>φ</sub>+ι(u)X<sub>θ</sub>]/J and a prescribed illustrative iota(u). This construction is divergence free in the chosen coordinates. The first-order guiding-centre equations use the mirror force, grad-B/curvature drifts and prescribed E×B drift. A 4th-order Runge–Kutta integrator advances (u,θ,φ,v∥), conserving μ. No collisions, no finite-Larmor-radius corrections. The result is an illustrative <b>surrogate</b>, not a validated equilibrium-orbit calculation.</p>';
- get('orbitWarnings').innerHTML='<div class="notice"><b>Scientific scope:</b> the boundary is a truncated approximation from an actual W7-X VMEC input; the 3D magnetic field and trajectory are modeled. Do not use these tracks to infer W7-X fast-particle loss fractions, trapping thresholds, confinement times, or neoclassical transport coefficients. A missing mirror reversal in a finite sample does not prove that the orbit is globally passing.</div>';
+ get('orbitWarnings').innerHTML='<div class="notice"><b>Scientific scope:</b> the boundary is a truncated approximation from an actual W7-X VMEC input; the 3D magnetic field and trajectory are modeled. Do not use these tracks to infer W7-X fast-particle loss fractions, trapping thresholds, confinement times, or neoclassical transport coefficients. A missing mirror reversal in a finite sample does not prove that the orbit is globally passing.'+orbitRelativisticNote()+'</div>';
  get('orbit3dPanel').querySelector('.gc3d-head h3').textContent='3D W7-X-derived boundary + synthetic-field orbit';
  get('orbit3dPanel').querySelector('.gc3d-head .sub').textContent='Truncated five-period W7-X VMEC input boundary; synthetic interior and divergence-free teaching field · not a validated VMEC guiding-centre solution';
  get('orbit3dPanel').querySelector('.gc3d-hint').innerHTML='<b>Interpretation:</b> the blue surface uses a truncated set of W7-X boundary Fourier coefficients. The green line is a field-line trace of the synthetic field, and the bright line is an approximate guiding-centre orbit in that field. The R–Z chart is a projection over all toroidal phases, not a fixed-φ cut. 3D radial/precession magnification is disabled in stellarator mode.';
@@ -522,7 +540,10 @@ function wxRenderOrbits(c){
 }
 
 const eCharge=1.602176634e-19, me=9.1093837139e-31, mp=1.67262192595e-27;
-const defaults={n19:10,Te:10,Ti:10,B:5,R:6,a:2,ra:0.5,q0:1,qa:3,A:2,Z:1,Zeff:1,lnL:17,epsh:0.05,Er:-10,geom:1,rfpLambda:2.7,rfpHelix:0.54,rfpBean:0.87,rfpDelta:0.004,rfpLc:0.6,rfpC:12,pitch:0.32,profN:1,profTe:1,profTi:1,bsC:1};
+// Test-particle orbit energy is deliberately independent of thermal species temperatures.
+function orbitSpeed(m){return Math.sqrt(2*state.Eorbit*1000*eCharge/m);}
+function orbitGyroradius(v,m,q,B){return m*v/(Math.abs(q)*Math.max(1e-9,B));}
+const defaults={n19:10,Te:10,Ti:10,B:5,R:6,a:2,ra:0.5,q0:1,qa:3,A:2,Z:1,Zeff:1,lnL:17,epsh:0.05,Er:-10,geom:1,rfpLambda:2.7,rfpHelix:0.54,rfpBean:0.87,rfpDelta:0.004,rfpLc:0.6,rfpC:12,Eorbit:5,pitch:0.32,profN:1,profTe:1,profTi:1,bsC:1};
 const cfg=[
  ['n19','Electron density','10¹⁹ m⁻³',.1,100,.1,'basicFields'],
  ['Te','Electron temperature','keV',.05,50,.05,'basicFields'],
@@ -546,6 +567,7 @@ const cfg=[
  ['rfpDelta','Nominal δBᵣ/B (MH tearing + RR)','',.0002,.03,.0002,'rfpFieldsInner'],
  ['rfpLc','Parallel correlation length Lcorr','m',.05,5,.05,'rfpFieldsInner'],
  ['rfpC','Schematic only: multiplier Cν (unfitted)','',1,80,1,'rfpFieldsInner'],
+ ['Eorbit','Test-particle kinetic energy E₀','keV',.01,200,.01,'orbitFields'],
  ['pitch','Initial parallel pitch ξ₀=v∥/v','',-.99,.99,.01,'orbitFields'],
  ['profN','Density peaking exponent αₙ','',.7,4,.1,'bsFields'],
  ['profTe','Electron T exponent αₑ','',.4,4,.1,'bsFields'],
@@ -572,9 +594,16 @@ function renderQProfile(){
  `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Prescribed parabolic q profile; local evaluation position marked"><path d="M${l} ${t}V${H-b}H${W-r}" stroke="#9cabbe" fill="none"/><path d="${path}" stroke="#4165c6" stroke-width="2.8" fill="none"/><path d="M${x(state.ra)} ${t}V${H-b}" stroke="#8294b3" stroke-dasharray="4 4"/><circle cx="${x(state.ra)}" cy="${y(qval)}" r="4.8" fill="#dd8422" stroke="white" stroke-width="1.5"/><text x="${l}" y="${H-4}" font-size="10" fill="#5e7296">axis 0</text><text x="${W-r}" y="${H-4}" text-anchor="end" font-size="10" fill="#5e7296">edge a</text><text x="${l+4}" y="${t+12}" font-size="10" fill="#5e7296">q</text></svg>`+
  '<div class="q-profile-foot">q(r) = q₀ + (qₐ − q₀)(r/a)². Orange dot: evaluation radius. q₀ and qₐ are prescribed, not calculated from equilibrium.</div>';
 }
-function makeFields(){for(const [k,label,unit,min,max,step,group] of cfg){const el=document.createElement('div');el.className='field';el.innerHTML=`<div class="fieldhead"><label for="num_${k}">${label}</label><span><input id="num_${k}" type="number" min="${min}" max="${max}" step="${step}" value="${state[k]}" aria-label="${label}"> <small>${unit}</small></span></div><input type="range" id="range_${k}" min="${min}" max="${max}" step="${step}" value="${state[k]}" aria-label="${label} slider">`;
-get(group).appendChild(el);get('num_'+k).addEventListener('input',ev=>{const x=Number(ev.target.value);if(!Number.isFinite(x)||ev.target.value==='')return;state[k]=Math.max(min,Math.min(max,x));get('range_'+k).value=state[k];refresh()});get('range_'+k).addEventListener('input',ev=>{state[k]=Number(ev.target.value);get('num_'+k).value=state[k];refresh()});}}
-function setState(next,newMode){Object.assign(state,next);if(newMode)mode=newMode;for(const [k] of cfg){get('num_'+k).value=state[k];get('range_'+k).value=state[k];}refresh()}
+function fieldSliderValue(k,value){return k==='Eorbit'?Math.log10(Math.max(.01,value)):value;}
+function makeFields(){for(const [k,label,unit,min,max,step,group] of cfg){
+ const el=document.createElement('div');el.className='field';
+ const isOrbitE=k==='Eorbit',sMin=isOrbitE?Math.log10(min):min,sMax=isOrbitE?Math.log10(max):max,sStep=isOrbitE?.005:step;
+ el.innerHTML=`<div class="fieldhead"><label for="num_${k}">${label}</label><span><input id="num_${k}" type="number" min="${min}" max="${max}" step="${isOrbitE?'any':step}" value="${state[k]}" aria-label="${label}"> <small>${unit}</small></span></div><input type="range" id="range_${k}" min="${sMin}" max="${sMax}" step="${sStep}" value="${fieldSliderValue(k,state[k])}" aria-label="${label} slider${isOrbitE?' (logarithmic)':''}">`;
+ get(group).appendChild(el);
+ get('num_'+k).addEventListener('input',ev=>{const x=Number(ev.target.value);if(!Number.isFinite(x)||ev.target.value==='')return;state[k]=Math.max(min,Math.min(max,x));get('range_'+k).value=fieldSliderValue(k,state[k]);refresh()});
+ get('range_'+k).addEventListener('input',ev=>{const raw=Number(ev.target.value);state[k]=isOrbitE?Number(Math.max(min,Math.min(max,Math.pow(10,raw))).toPrecision(4)):raw;get('num_'+k).value=state[k];refresh()});
+}}
+function setState(next,newMode){Object.assign(state,next);if(newMode)mode=newMode;for(const [k] of cfg){get('num_'+k).value=state[k];get('range_'+k).value=fieldSliderValue(k,state[k]);}refresh()}
 function calc(){const p=state;const qLocal=qAt(p.ra),r=p.a*p.ra,eps=r/p.R;const ne=p.n19*1e19;const ni=p.n19*1e19/p.Z,ncm=p.n19*1e13,nicm=ni/1e6,Te=p.Te*1e3,Ti=p.Ti*1e3;
 const mi=p.A*mp;const ve=Math.sqrt(Te*eCharge/me),vi=Math.sqrt(Ti*eCharge/mi);const Ome=eCharge*p.B/me,Omi=p.Z*eCharge*p.B/mi;
 const rhoe=ve/Ome,rhoi=vi/Omi;
@@ -1009,7 +1038,13 @@ function rfpTraceFieldLine(start){
  }
  return {points:pts,span:state.a*(uHi-uLo),stop};
 }
-function rfpInitial(){const u0=Math.max(.12,Math.min(.83,state.ra)),q=rfpField(u0).q;
+function rfpInitial(){const requested=orbitLaunch.rfp;
+ if(requested){const u=requested.u,theta=requested.theta,phi=requested.phi,init=rfpCore(u,theta,phi),q=rfpField(u).q;
+  let max=init.B;
+  for(let j=0;j<=200;j++){const ph=phi+2*Math.PI*j/200,th=theta+(ph-phi)/Math.max(.028,q);const g=rfpCore(u,th,ph);if(Number.isFinite(g.B))max=Math.max(max,g.B)}
+  return {u0:u,best:{B:init.B,theta,phi},max,xiCrit:Math.sqrt(Math.max(0,1-init.B/max)),q};
+ }
+ const u0=Math.max(.12,Math.min(.83,state.ra)),q=rfpField(u0).q;
  let best={B:Infinity,theta:0,phi:0},max=0;
  for(let i=0;i<=260;i++){const theta=2*Math.PI*i/260,phi=q*theta,B=rfpCore(u0,theta,phi).B;
   if(B<best.B)best={B,theta,phi};max=Math.max(max,B);}
@@ -1017,7 +1052,7 @@ function rfpInitial(){const u0=Math.max(.12,Math.min(.83,state.ra)),q=rfpField(u
 }
 function rfpIntegrate(c){const sp=orbitViewer.species==='electron'?c.electron:c.ion;
  const m=orbitViewer.species==='electron'?me:state.A*mp,charge=orbitViewer.species==='electron'?-eCharge:state.Z*eCharge;
- const x=rfpInitial(),v=sp.v,xi=state.pitch,mu=.5*m*v*v*(1-xi*xi)/x.best.B;
+ const x=rfpInitial(),v=orbitSpeed(m),xi=state.pitch,mu=.5*m*v*v*(1-xi*xi)/x.best.B;
  let y=[x.u0,x.best.theta,x.best.phi,v*xi];const ini=.5*m*v*v;
  const L=rfpCore(x.u0,x.best.theta,x.best.phi).L,dt=.018*L/v;
  const steps=view3d.periods===1?800:view3d.periods===3?1450:2500;
@@ -1036,7 +1071,7 @@ function rfpIntegrate(c){const sp=orbitViewer.species==='electron'?c.electron:c.
  }
  const traced=rfpTraceFieldLine(x);
  return {points,fieldLine:traced.points,fieldLineSpan:traced.span,fieldLineStop:traced.stop,
-  mu,init:x,energyErr,bounces,stop,dt,duration:Math.max(0,points.length-1)*dt,rMin:state.a*uMin,rMax:state.a*uMax,trapped:bounces>0,ion:sp,xi,orbitClass:bounces>0?'Mirror reversals observed':'No mirror reversal in sampled time'};
+  mu,init:x,energyErr,bounces,stop,dt,duration:Math.max(0,points.length-1)*dt,rMin:state.a*uMin,rMax:state.a*uMax,trapped:bounces>0,ion:{...sp,v,rho:orbitGyroradius(v,m,charge,x.best.B)},xi,orbitClass:bounces>0?'Mirror reversals observed':'No mirror reversal in sampled time'};
 }
 function rfpPerturbRMS(){
  if(rfpTopology!=='mh'||rfpOrbitField!=='tearing')return 0;
@@ -1298,15 +1333,16 @@ function rfpRenderOrbits(c){const gc=rfpIntegrate(c),pts=gc.points;if(!pts.lengt
  for(const f of [.25,.5,.75,1])shapes+=`<circle cx="${cx}" cy="${cy}" r="${141*f}" stroke="${f===1?'#9bacc4':'#dbe4f1'}" stroke-dasharray="${f===1?'':'4 5'}" fill="none" stroke-width="${f===1?2:1}"/>`;
  if(rfpTopology==='shax'){const a=state.a*state.rfpHelix*sc;shapes+=`<circle cx="${cx+a}" cy="${cy}" r="4" fill="#d8862b"/><circle cx="${cx-a}" cy="${cy}" r="4" fill="#d8862b"/>`;}
  const pos=p=>({x:cx+(Math.hypot(p.X[0],p.X[1])-state.R)*sc,y:cy-p.X[2]*sc});
+ orbitViewer.pickMap={left:137,right:419,top:49,bottom:331,fromSvg:(x,y)=>({R:state.R+(x-cx)/sc,Z:(cy-y)/sc})};
  orbitViewer.path2D=pts.map(pos);const path=orbitViewer.path2D.map((p,i)=>(i?'L':'M')+p.x.toFixed(2)+' '+p.y.toFixed(2)).join(' '),first=orbitViewer.path2D[0],color=gc.trapped?'#2d67c6':'#d98b2d';
- const main=`<svg id="orbitSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="RFP orbit projection over all toroidal positions"><rect width="${w}" height="${h}" fill="#fcfdff"/><defs><clipPath id="rfpClip"><rect x="65" y="15" width="440" height="353"/></clipPath></defs><g clip-path="url(#rfpClip)">${shapes}<path d="${path}" stroke="white" stroke-width="5.4" fill="none"/><path d="${path}" stroke="${color}" stroke-width="2.8" fill="none"/><circle id="orbitDot" cx="${first.x}" cy="${first.y}" r="7" fill="#244b87" stroke="#fff" stroke-width="2"/></g><path d="M528 20V360" stroke="#e0e5ed"/><text x="551" y="61" font-size="12" fill="#546782">R–Z projection over all φ</text><text x="551" y="93" font-size="19" fill="#23375e" font-weight="700">${rfpTopology==='shax'?'Helical SHAx surrogate':mhTearing?'MH with modeled tearing':'Axisymmetric RFP reference'}</text><text x="551" y="150" font-size="12" fill="#546782">Observed v∥ reversals</text><text x="551" y="180" font-size="24" fill="#23375e" font-weight="700">${gc.bounces}</text><text x="551" y="237" font-size="12" fill="#546782">Flux-label radial span</text><text x="551" y="268" font-size="22" fill="#23375e" font-weight="700">${lengthFmt(gc.rMax-gc.rMin)}</text><text x="551" y="324" font-size="12" fill="#546782">${mhTearing?'Tearing field on · no collisions':'No MH tearing / collisions'}</text></svg>`;
+ const main=`<svg id="orbitSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="RFP orbit projection over all toroidal positions"><rect width="${w}" height="${h}" fill="#fcfdff"/><defs><clipPath id="rfpClip"><rect x="65" y="15" width="440" height="353"/></clipPath></defs><g clip-path="url(#rfpClip)">${shapes}<path d="${path}" stroke="white" stroke-width="5.4" fill="none"/><path d="${path}" stroke="${color}" stroke-width="2.8" fill="none"/><circle id="orbitDot" cx="${first.x}" cy="${first.y}" r="7" fill="#244b87" stroke="#fff" stroke-width="2"/>${launchGlyph(first)}</g><path d="M528 20V360" stroke="#e0e5ed"/><text x="551" y="61" font-size="12" fill="#546782">R–Z projection over all φ</text><text x="551" y="93" font-size="19" fill="#23375e" font-weight="700">${rfpTopology==='shax'?'Helical SHAx surrogate':mhTearing?'MH with modeled tearing':'Axisymmetric RFP reference'}</text><text x="551" y="150" font-size="12" fill="#546782">Observed v∥ reversals</text><text x="551" y="180" font-size="24" fill="#23375e" font-weight="700">${gc.bounces}</text><text x="551" y="237" font-size="12" fill="#546782">Flux-label radial span</text><text x="551" y="268" font-size="22" fill="#23375e" font-weight="700">${lengthFmt(gc.rMax-gc.rMin)}</text><text x="551" y="324" font-size="12" fill="#546782">${mhTearing?'Tearing field on · no collisions':'No MH tearing / collisions'}</text></svg>`;
  get('orbitGraph').innerHTML=main;orbitViewer.svg=main;
  get('orbitStatus').textContent=`RFP ${rfpTopology.toUpperCase()}${rfpTopology==='mh'?(mhTearing?' · tearing':' · axisym'):''}: ${gc.orbitClass}`;
  get('orbitLegend').innerHTML=`<span><b class="swatch" style="background:${color}"></b>GC path · R–Z (all toroidal phases)</span><span>Concentric circles: circular reference surfaces</span>`;
- get('orbitReadout').innerHTML=`<b>Model: ${rfpTopology==='shax'?'SHAx-like bean-shaped helical nested surfaces':mhTearing?'axisymmetric RFP plus synthetic multi-mode tearing':'axisymmetric Taylor/Bessel equilibrium only'}.</b><br>${gc.orbitClass}. Bessel equilibrium q reaches <b>q≈${pretty(rfpField(1).q)}</b> at the edge. ${mhTearing?'Twelve m=1 modes (n=7–18) are active in the magnetic field, with a nominal δBᵣ/B=${pretty(state.rfpDelta)} and sampled RMS ≈${pretty(rfpPerturbRMS())} at r/a=0.5.':'The green field line can wind helically even without MH tearing perturbations.'} <b>Magnetic island overlap and full chaos are not guaranteed merely by selecting tearing modes.</b><br><br>Both 2D and 3D views use the same numerically integrated GC points; R–Z combines all toroidal phases.`;
- get('orbitMetrics').innerHTML=orbitMetric('Ion/electron thermal ρ',lengthFmt(gc.ion.rho),'using selected field B and species')+orbitMetric('RFP local q',pretty(rfpField(state.ra).q),'from Bessel reference profiles')+orbitMetric('RFP Bφ at evaluation',pretty(rfpField(state.ra).bt)+' T','may be negative near reversal')+orbitMetric('RFP Bθ at evaluation',pretty(rfpField(state.ra).bp)+' T','poloidal field')+orbitMetric('Mirror reversals',String(gc.bounces),'actually observed in sample')+orbitMetric('Simulation duration',timeFmt(gc.duration),'collisionless model')+orbitMetric('Energy variation',pretty(gc.energyErr),'numerical monitor')+orbitMetric('Modeled flux-label span',lengthFmt(gc.rMax-gc.rMin),'a × Δu, not a transport D')+orbitMetric('Field-line radial span',lengthFmt(gc.fieldLineSpan),'from tracing same B, not a diffusivity')+(mhTearing?orbitMetric('Perturbation RMS δBr/B',pretty(rfpPerturbRMS()),'sampled at r/a=0.5 · synthetic'):'' );
+ get('orbitReadout').innerHTML=`<b>Test-particle energy: ${pretty(state.Eorbit)} keV (independent of Tₑ/Tᵢ).</b><br><b>Model: ${rfpTopology==='shax'?'SHAx-like bean-shaped helical nested surfaces':mhTearing?'axisymmetric RFP plus synthetic multi-mode tearing':'axisymmetric Taylor/Bessel equilibrium only'}.</b><br>${orbitLaunch.rfp?'Launched on the synthetic φ₀=0 section. ':''}${gc.orbitClass}. Bessel equilibrium q reaches <b>q≈${pretty(rfpField(1).q)}</b> at the edge. ${mhTearing?'Twelve m=1 modes (n=7–18) are active in the magnetic field, with a nominal δBᵣ/B=${pretty(state.rfpDelta)} and sampled RMS ≈${pretty(rfpPerturbRMS())} at r/a=0.5.':'The green field line can wind helically even without MH tearing perturbations.'} <b>Magnetic island overlap and full chaos are not guaranteed merely by selecting tearing modes.</b><br><br>Both 2D and 3D views use the same numerically integrated GC points; R–Z combines all toroidal phases.`;
+ get('orbitMetrics').innerHTML=orbitMetric('Test-particle energy E₀',pretty(state.Eorbit)+' keV','independent of plasma temperature')+orbitMetric('Initial Larmor radius ρ₀',lengthFmt(gc.ion.rho),'test-particle speed and local B')+orbitMetric('RFP local q',pretty(rfpField(state.ra).q),'from Bessel reference profiles')+orbitMetric('RFP Bφ at evaluation',pretty(rfpField(state.ra).bt)+' T','may be negative near reversal')+orbitMetric('RFP Bθ at evaluation',pretty(rfpField(state.ra).bp)+' T','poloidal field')+orbitMetric('Mirror reversals',String(gc.bounces),'actually observed in sample')+orbitMetric('Simulation duration',timeFmt(gc.duration),'collisionless model')+orbitMetric('Energy variation',pretty(gc.energyErr),'numerical monitor')+orbitMetric('Modeled flux-label span',lengthFmt(gc.rMax-gc.rMin),'a × Δu, not a transport D')+orbitMetric('Field-line radial span',lengthFmt(gc.fieldLineSpan),'from tracing same B, not a diffusivity')+(mhTearing?orbitMetric('Perturbation RMS δBr/B',pretty(rfpPerturbRMS()),'sampled at r/a=0.5 · synthetic'):'' );
  get('orbitEquations').innerHTML='<p><b>Equilibrium:</b> Bφ≈B₀J₀(λr), Bθ≈B₀J₁(λr), q≈rBφ/(R₀Bθ). <b>SHAx:</b> nested non-circular helical surfaces: h(u)=a h₀(1−u²)² shifts the magnetic axis; radial compression sₓ(u) and a localized inboard indentation shape the core in the rotating helical frame (η=θ−7φ). Both are used in the same divergence-free B driving the orbits and Poincaré. No internal separatrix (SHAx expulsion), no tearing superposition.</p><p><b>MH tearing surrogate:</b> the axisymmetric field is perturbed using a covariant vector potential component Aφ=H(u,θ,φ)∝Σₙ u exp[−(u−uₙ)²/(2w²)] cos(θ−nφ+αₙ), n=7–18, with uₙ estimated from q(uₙ)=1/n. In curvilinear coordinates the resulting contravariant components obey JδBᵘ=∂θH, JδBᶿ=−∂uH and δBᵠ=0. Hence ∇·δB=0 identically. The input δBr/B sets its nominal radial RMS around r/a=0.5, not a measured spectrum. The guide field line is integrated in this same B, as is the GC orbit.</p><p><b>Orbits:</b> first-order GC mirror, grad-B and curvature terms, RK4 (u,θ,φ,v∥), μ fixed; no Coulomb collisions, Eᵣ, eigenmode dynamics or finite Larmor radius. The model may exhibit radial field-line excursions or island-like behavior, but no automatic demonstration of global magnetic chaos; convergence checks are required. ORBIT paper D(ν*) and the RR benchmark do not come from this modeled trajectory.</p>';
- get('orbitWarnings').innerHTML='<div class="notice"><b>Not a confinement prediction:</b> The MH modes are prescribed Fourier perturbations, not MHD tearing eigenfunctions; increasing δBr/B may create island overlap but does not by itself prove chaos. The same δBr/B is used <i>independently</i> in the RR benchmark, without calibrating D from numerical orbits. A large orbit displacement or field-line excursion is not a measured RFX-mod loss or diffusion coefficient.'+(gc.energyErr>.01?' <b>Numerical warning:</b> the energy error exceeds 1%; reduce model amplitude / integration duration.':'')+'</div>';
+ get('orbitWarnings').innerHTML='<div class="notice"><b>Not a confinement prediction:</b> The MH modes are prescribed Fourier perturbations, not MHD tearing eigenfunctions; increasing δBr/B may create island overlap but does not by itself prove chaos. The same δBr/B is used <i>independently</i> in the RR benchmark, without calibrating D from numerical orbits. A large orbit displacement or field-line excursion is not a measured RFX-mod loss or diffusion coefficient.'+orbitRelativisticNote()+(gc.energyErr>.01?' <b>Numerical warning:</b> the energy error exceeds 1%; reduce model amplitude / integration duration.':'')+'</div>';
  render3DStatic();const j=Math.min(pts.length-1,Math.floor(orbitViewer.phase*(pts.length-1))),pt=orbitViewer.path2D[j];if(pt){get('orbitDot').setAttribute('cx',pt.x);get('orbitDot').setAttribute('cy',pt.y);}
 }
 
@@ -1330,7 +1366,7 @@ function refresh(){
  get('tokamakPlotTabs').classList.toggle('disabled',mode!=='tokamak');
  get('geometryFields').querySelectorAll('.field').forEach(x=>{const label=x.querySelector('label').getAttribute('for');x.classList.toggle('disabled',mode!=='tokamak'&&(label==='num_q0'||label==='num_qa'));});
  for(const k of ['q0','qa']){get('num_'+k).disabled=mode!=='tokamak';get('range_'+k).disabled=mode!=='tokamak';}
- renderQProfile();renderRFPProfile();
+ renderQProfile();renderRFPProfile();orbitLaunchBadge();
 const c=calc();last=c;const p=state;const issues=[];
 if(c.r>=p.R && mode!=='stellarator')issues.push('The generic transport geometry requires a·(r/a) < R₀. This check does not apply to the fixed W7-X-derived orbit geometry.');
 if(p.a>=p.R && mode!=='stellarator')issues.push('The selected R₀ and a violate the large-aspect-ratio ordering of the generic transport estimates (not the W7-X boundary).');
@@ -1437,18 +1473,94 @@ get('legend').innerHTML='<span><b class="swatch" style="background:#2865c9"></b>
 }
 
 // ---------- Circular tokamak guiding-centre teaching model (NOT an ORBIT simulation) ----------
-const orbitViewer={path2D:[],gc:null,species:'ion',playing:true,phase:0,frame:0,svg:'',length:0,lastFrame:0};
+const orbitViewer={path2D:[],gc:null,species:'ion',playing:true,phase:0,frame:0,svg:'',length:0,lastFrame:0,pickMap:null};
+// A launch position changes the orbit ONLY; it never modifies r/a used in D, chi, or bootstrap.
+const orbitLaunch={tokamak:null,stellarator:null,rfp:null};
+function launchForMode(){return orbitLaunch[mode]}
+function orbitLaunchBadge(){
+ const v=launchForMode();
+ get('orbitLaunchPosition').textContent=v?`Selected: ${mode==='stellarator'?'model u₀':'r₀/a'}=${v.u.toFixed(3)} · θ₀=${(v.theta*180/Math.PI).toFixed(1)}° · φ₀=${(v.phi*180/Math.PI).toFixed(1)}°`:'Default starting point';
+ get('resetOrbitLaunch').disabled=!v;
+ if(v){get('orbitLaunchMessage').textContent='Orange cross = fixed start; blue dot = animated guiding centre. The transport evaluation radius and D/χ/bootstrap estimates are unchanged. '+(mode==='tokamak'?'Pitch ξ₀ is defined at the selected start.':'Launch is chosen on the synthetic field at φ₀=0; the 2D orbit trace projects many toroidal planes.');}
+ else get('orbitLaunchMessage').textContent='Click or tap inside the 2D R–Z orbit plot to choose a new launch point. For 3D fields the selection is at φ₀ = 0; the full orbit projection combines all toroidal angles.';
+}
+function launchGlyph(pt){
+ return `<g class="orbit-launch-marker" aria-label="Launch point" transform="translate(${pt.x.toFixed(2)},${pt.y.toFixed(2)})"><circle r="10.5" fill="#fff" fill-opacity=".95" stroke="#bb571d" stroke-width="1.8"/><path d="M -6.5 0 H 6.5 M 0 -6.5 V 6.5" stroke="#c95c18" stroke-width="2.3" stroke-linecap="round"/><text x="14" y="-11" font-size="11" font-weight="700" fill="#a54917" stroke="white" stroke-width="2.8" paint-order="stroke">START</text></g>`;
+}
+// Inverts R(u,theta,phi=0), Z(u,theta,phi=0) on the smooth synthetic launch slice.
+// Coarse search followed by a locally damped Newton update; reject points outside the modeled domain.
+function closest3DLaunch(R,Z,device){
+ const rfp=device==='rfp',phi=0,lo=rfp?.075:.085,hi=rfp?.865:.91;
+ const geometry=(u,th)=>rfp?rfpGeometry(u,th,phi):wxGeometry(u,th,phi);
+ let best={err:Infinity,u:.5,theta:0};
+ function tryOne(u,theta){
+  const g=geometry(u,theta),err=(g.R-R)**2+(g.Z-Z)**2;
+  if(Number.isFinite(err)&&err<best.err)best={u,theta,err};
+ }
+ for(let i=0;i<=17;i++)for(let j=0;j<80;j++)tryOne(lo+(hi-lo)*i/17,j*2*Math.PI/80);
+ let {u,theta}=best;
+ for(let it=0;it<15;it++){
+  const g=geometry(u,theta),a=g.Xu[0],b=g.Xt[0],c=g.Xu[2],d=g.Xt[2];
+  const det=a*d-b*c;if(Math.abs(det)<1e-7||!Number.isFinite(det))break;
+  const eR=R-g.R,eZ=Z-g.Z,du=(d*eR-b*eZ)/det,dtheta=(a*eZ-c*eR)/det;
+  const err=eR*eR+eZ*eZ;let updated=false;
+  for(const t of [1,.5,.25,.125]){
+   const uu=Math.min(hi,Math.max(lo,u+t*du)),th=theta+t*dtheta;
+   const gg=geometry(uu,th),ee=(gg.R-R)**2+(gg.Z-Z)**2;
+   if(ee<err){u=uu;theta=th;updated=true;break}
+  }
+  if(!updated)break;
+ }
+ const g=geometry(u,theta),error=Math.hypot(g.R-R,g.Z-Z);
+ const scale=rfp?state.a:.53;
+ if(error>scale*.065)return null;
+ return {u,theta:((theta+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI,phi:0,R:g.R,Z:g.Z};
+}
+function handleLaunchClick(event){
+ if(event.button!==undefined&&event.button!==0)return;
+ const svg=get('orbitSvg'),map=orbitViewer.pickMap;
+ if(!svg||!map)return;
+ const point=svg.createSVGPoint();point.x=event.clientX;point.y=event.clientY;
+ const ctm=svg.getScreenCTM();if(!ctm)return;
+ const pt=point.matrixTransform(ctm.inverse()),x=pt.x,y=pt.y;
+ if(x<map.left||x>map.right||y<map.top||y>map.bottom)return;
+ const rz=map.fromSvg(x,y);let launch;
+ if(mode==='tokamak'){
+  const rad=Math.hypot(rz.R-state.R,rz.Z),u=rad/state.a;
+  if(u<.075||u>.92){get('orbitLaunchMessage').textContent='Choose a point inside the modeled plasma, away from the magnetic axis and LCFS.';return}
+  launch={u,theta:Math.atan2(rz.Z,rz.R-state.R),phi:0,R:rz.R,Z:rz.Z};
+ }else{
+  launch=closest3DLaunch(rz.R,rz.Z,mode);
+  if(!launch){get('orbitLaunchMessage').textContent='This point is outside the modeled φ₀=0 launch slice. Try a point closer to the interior of the displayed surface.';return}
+ }
+ orbitLaunch[mode]=launch;
+ orbitViewer.phase=0;orbitViewer.lastFrame=0;
+ renderOrbits(last);orbitLaunchBadge();
+}
+get('orbitGraph').addEventListener('click',handleLaunchClick);
+get('resetOrbitLaunch').addEventListener('click',()=>{orbitLaunch[mode]=null;orbitViewer.phase=0;orbitViewer.lastFrame=0;renderOrbits(last);orbitLaunchBadge()});
+
 function numericIntegral(f,a,b,N=800){let sum=0;const h=(b-a)/N;for(let k=0;k<N;k++){const x=a+(k+.5)*h;sum+=f(x);}return sum*h;}
 function orbitModel(c){
- const p=state, xi0=p.pitch, x2=xi0*xi0, eps=Math.max(1e-5,Math.min(.9,c.eps));
- const sp=orbitViewer.species==='electron'?c.electron:c.ion;
+ const p=state,xi0=p.pitch,eps=Math.max(1e-5,Math.min(.9,c.eps));
+ const loc=orbitLaunch.tokamak,theta0=loc?loc.theta:0;
+ // For arbitrary poloidal launch theta, the user pitch is local. Convert to
+ // an equivalent OUTBOARD-midplane pitch only for analytic banana estimates.
+ const r=c.r,q0=c.qLocal,bfac=Math.sqrt(1+Math.pow(r/(Math.max(.1,q0)*p.R),2));
+ const Bmin=p.B*p.R/(p.R+r)*bfac,Bmax=p.B*p.R/(p.R-r)*bfac;
+ const Blaunch=p.B*p.R/(p.R+r*Math.cos(theta0))*bfac;
+ const xiOutboard=Math.sign(xi0||1)*Math.sqrt(Math.max(0,1-(1-xi0*xi0)*Bmin/Blaunch));
+ const x2=xiOutboard*xiOutboard;
+ const xcLocal=Math.sqrt(Math.max(0,1-Blaunch/Bmax));
+ const thermal=orbitViewer.species==='electron'?c.electron:c.ion;
  const m=orbitViewer.species==='electron'?me:p.A*mp, charge=orbitViewer.species==='electron'?-eCharge:p.Z*eCharge;
+ const v=orbitSpeed(m),sp={...thermal,v,rho:orbitGyroradius(v,m,charge,p.B)};
  const Btheta=p.B*eps/c.qLocal, xc=Math.sqrt(2*eps/(1+eps));
  const trapped=Math.abs(xi0)<xc, boundary=(1-x2)*(1+eps);
  const thetaB=trapped?Math.acos(Math.max(-1,Math.min(1,(boundary-1)/eps))):Math.PI;
  const xiAt=theta=>Math.sqrt(Math.max(0,1-boundary/(1+eps*Math.cos(theta))));
- const par0=sp.v*xi0, rhoPerp=sp.rho*Math.sqrt(Math.max(0,1-x2));
- const orbitHalf=m*sp.v*Math.abs(xi0)/(Math.abs(charge*Btheta));
+ const par0=sp.v*xiOutboard, rhoPerp=orbitGyroradius(v,m,charge,Blaunch)*Math.sqrt(Math.max(0,1-xi0*xi0));
+ const orbitHalf=m*sp.v*Math.abs(xiOutboard)/(Math.abs(charge*Btheta));
  const width=2*orbitHalf, bananaScale=c.qLocal*sp.rho/Math.sqrt(eps);
  const tauDeep=c.qLocal*p.R/(sp.v*Math.sqrt(eps));
  let period=NaN;
@@ -1485,7 +1597,7 @@ function orbitModel(c){
  const maxVisible=Math.min(.14*p.a,.24*c.r);
  const zoom=Math.max(1,Math.min(1e5,maxVisible/maxD));
  const effNu=sp.nu/eps;
- return{sp,m,charge,Btheta,xc,xi0,trapped,thetaB,par0,rhoPerp,width,orbitHalf,bananaScale,tauDeep,period,effNu,zoom,path,maxD,realRadialMax:maxD};
+ return{sp,m,charge,Btheta,xc,xcLocal,xi0,xiOutboard,theta0,trapped,thetaB,par0,rhoPerp,width,orbitHalf,bananaScale,tauDeep,period,effNu,zoom,path,maxD,realRadialMax:maxD};
 }
 function orbitMetric(label,value,subtitle){return `<div class="metric"><label>${label}</label><strong>${value}</strong><small>${subtitle}</small></div>`}
 function lengthFmt(m){if(!Number.isFinite(m))return 'n/a';if(Math.abs(m)<1e-6)return pretty(m*1e9)+' nm';if(Math.abs(m)<1e-3)return pretty(m*1e6)+' μm';if(Math.abs(m)<.1)return pretty(m*1e3)+' mm';return pretty(m)+' m'}
@@ -1538,7 +1650,9 @@ function gcRK4(u,dt,mu,m,q){
 }
 function integrateGuidingCentre(c,o,periods){
  const v=o.sp.v,m=o.m,charge=o.charge;
- const u0=[state.R+c.r,0,0,v*state.pitch];
+ const loc=orbitLaunch.tokamak,th=loc?loc.theta:0,rr=loc?loc.u*state.a:c.r,ph=loc?loc.phi:0;
+ const R0=state.R+rr*Math.cos(th);
+ const u0=[R0*Math.cos(ph),R0*Math.sin(ph),rr*Math.sin(th),v*state.pitch];
  const b0=gcField(u0[0],u0[1],u0[2]).mag;
  const mu=.5*m*v*v*(1-state.pitch*state.pitch)/b0, initialE=.5*m*v*v;
  const period=Number.isFinite(o.period)&&o.period>0?o.period:2*Math.PI*qAt(state.ra)*state.R/v;
@@ -1702,40 +1816,46 @@ function install3DControls(){
  canvas.addEventListener('keydown',e=>{let handled=true;if(e.key==='ArrowLeft')view3d.azimuth-=.13;else if(e.key==='ArrowRight')view3d.azimuth+=.13;else if(e.key==='ArrowUp')view3d.elevation=gclamp(view3d.elevation-.12,-1.3,1.3);else if(e.key==='ArrowDown')view3d.elevation=gclamp(view3d.elevation+.12,-1.3,1.3);else if(e.key==='+'||e.key==='=')view3d.zoom=gclamp(view3d.zoom*1.15,.5,3.1);else if(e.key==='-')view3d.zoom=gclamp(view3d.zoom/1.15,.5,3.1);else handled=false;if(handled){e.preventDefault();render3DStatic()}});
 }
 
+function orbitRelativisticNote(){return orbitViewer.species==='electron'&&state.Eorbit>=20?' <b>Nonrelativistic approximation:</b> for electrons at this energy, relativistic corrections may become important; the orbit solver does not include them.':'';}
 function renderOrbits(c){
+ get('orbitEnergyBadge').textContent='E₀ = '+pretty(state.Eorbit)+' keV';
+ orbitLaunchBadge();
  if(mode==='stellarator')return wxRenderOrbits(c);
  if(mode==='rfp')return rfpRenderOrbits(c);
  get('shaxSurfaceControl').style.display='none';view3d.isRFP=false;view3d.isW7X=false;get('radial3d').disabled=false;get('precession3d').disabled=false;
  get('orbit3dPanel').querySelector('.gc3d-head h3').textContent='3D orbit visualizer · numerical guiding-centre trajectory';
  get('orbit3dPanel').querySelector('.gc3d-head .sub').textContent='Circular axisymmetric tokamak · mirror force + grad-B/curvature drifts · synchronized 2D projection';
  get('orbit3dPanel').querySelector('.gc3d-hint').innerHTML='<b>Interpretation:</b> the pale-blue torus is the circular tokamak boundary; the thin teal curve is a field-line reference. The bright curve is the integrated guiding-centre trajectory. Tokamak-only magnification is optional; physical numerical values are unchanged.';
- const p=state,o=orbitModel(c);const gc=integrateGuidingCentre(c,o,view3d.periods);orbitViewer.gc=gc;const radScale=orbitRadialFactor(o);view3d.radialNow=radScale;const w=925,h=382,cx=246,cy=190;
+ const p=state,loc=orbitLaunch.tokamak;
+ const cLaunch=loc?{...c,r:loc.u*p.a,eps:loc.u*p.a/p.R,qLocal:qAt(loc.u)}:c;
+ const o=orbitModel(cLaunch);const gc=integrateGuidingCentre(cLaunch,o,view3d.periods);orbitViewer.gc=gc;const radScale=orbitRadialFactor(o);view3d.radialNow=radScale;const w=925,h=382,cx=246,cy=190;
  const sc=158/p.a; // circular LCFS = radius 158 px
  const xy=(theta,rad)=>({x:cx+sc*rad*Math.cos(theta),y:cy-sc*rad*Math.sin(theta)});
+ orbitViewer.pickMap={left:cx-sc*p.a,right:cx+sc*p.a,top:cy-sc*p.a,bottom:cy+sc*p.a,fromSvg:(x,y)=>({R:state.R+(x-cx)/sc,Z:(cy-y)/sc})};
  let elements=[];
  for(const frac of [.25,.5,.75,1]){
   const rr=p.a*frac;elements.push(`<circle cx="${cx}" cy="${cy}" r="${sc*rr}" fill="none" stroke="${frac===1?'#a3afc5':'#dbe3f0'}" stroke-width="${frac===1?2:1}" stroke-dasharray="${frac===1?'':'3 5'}"/>`);
  }
  // The actual surface without any radial magnification.
- elements.push(`<circle cx="${cx}" cy="${cy}" r="${sc*c.r}" fill="none" stroke="#8eabc5" stroke-width="1.8" stroke-dasharray="5 5"/>`);
+ elements.push(`<circle cx="${cx}" cy="${cy}" r="${sc*cLaunch.r}" fill="none" stroke="#8eabc5" stroke-width="1.8" stroke-dasharray="5 5"/>`);
  elements.push(`<path d="M${cx-165},${cy}H${cx+165} M${cx},${cy-165}V${cy+165}" stroke="#e0e5ef" stroke-width="1"/>`);
  let path='';orbitViewer.path2D=[];
  for(let k=0;k<gc.points.length;k++){
-  const z=gc.points[k],rr=c.r+(z.r-c.r)*radScale;
+  const z=gc.points[k],rr=cLaunch.r+(z.r-cLaunch.r)*radScale;
   const q=xy(z.theta,rr);orbitViewer.path2D.push(q);
   path+=(k===0?'M':'L')+svgSafeNum(q.x)+' '+svgSafeNum(q.y)+' ';
  }
  const color=o.trapped?'#2865c9':'#e08a23';
  elements.push(`<path id="guidingPath" d="${path}" fill="none" stroke="${color}" stroke-width="4.1" stroke-linecap="round" stroke-linejoin="round"/>`);
  const start=orbitViewer.path2D[0];
- elements.push(`<circle id="orbitDot" cx="${start.x}" cy="${start.y}" r="7.3" stroke="white" stroke-width="2.5" fill="#22336e"/>`);
+ elements.push(`<circle id="orbitDot" cx="${start.x}" cy="${start.y}" r="7.3" stroke="white" stroke-width="2.5" fill="#22336e"/>${launchGlyph(start)}`);
  const outer=cx+sc*p.a;
  elements.push(`<text x="${cx-10}" y="${cy-11}" text-anchor="end" font-size="12" font-weight="650" fill="#60718c">Magnetic axis</text><circle cx="${cx}" cy="${cy}" r="3" fill="#3e5582"/>`);
  elements.push(`<text x="${cx}" y="21" font-size="12" fill="#64758e" text-anchor="middle">Z ↑</text><text x="${outer+13}" y="${cy+4}" font-size="12" fill="#64758e">R →</text>`);
  elements.push(`<text x="${Math.min(w-80,outer+14)}" y="${cy-18}" font-size="11" fill="#60718c">LCFS</text>`);
  let y=55;const row=(name,value)=>{const ss=`<text x="${558}" y="${y}" font-size="12" fill="#697991">${name}</text><text x="${558}" y="${y+25}" font-size="21" font-weight="700" fill="#23375e">${value}</text>`;y+=57;return ss};
  elements.push(row('Orbit class',o.trapped?'TRAPPED (banana)':'PASSING (transit)'));
- elements.push(row('Pitch threshold |ξ₀|crit',pretty(o.xc,3)));
+ elements.push(row('Pitch threshold at launch |ξ₀|crit',pretty(o.xcLocal,3)));
  elements.push(row('Numerical radial range',lengthFmt(gc.rMax-gc.rMin)));
  elements.push(row('Visible radial magnification','× '+pretty(radScale,3)));
  elements.push(row('Reference bounce/transit period',timeFmt(o.period)));
@@ -1744,16 +1864,18 @@ function renderOrbits(c){
  const corrected=`<svg id="orbitSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${o.trapped?'Trapped banana':'Passing'} numerically integrated guiding-centre poloidal orbit"><rect width="${w}" height="${h}" fill="#fcfdff"/><defs><clipPath id="orbClip"><rect x="0" y="0" width="540" height="${h}"/></clipPath></defs><g clip-path="url(#orbClip)">${first}</g><path d="M540 18V364" stroke="#dfe5ef"/><g>${right}</g><text x="560" y="${h-17}" font-size="11" fill="#718099">Radial display scale: ${pretty(radScale)}×</text></svg>`;
  get('orbitGraph').innerHTML=corrected;orbitViewer.svg=corrected;
  get('orbitLegend').innerHTML=`<span><b class="swatch" style="background:${color}"></b>${o.trapped?'Trapped banana':'Passing drift orbit'}</span><span><b class="swatch" style="background:#8eabc5;border-top:1px dashed #8eabc5"></b>Original flux surface</span><span>Dashed circles: reference flux surfaces</span>`;
- drawGuidingCentre3D(c,o,gc,radScale);
+ drawGuidingCentre3D(cLaunch,o,gc,radScale);
  get('orbitStatus').textContent=o.trapped?'Trapped / banana':'Passing / circulating';
- get('orbitReadout').innerHTML=`Using <b>q<sub>loc</sub> = ${pretty(c.qLocal)}</b> at the starting radius (3D integration follows q(r)). At the outer midplane, <b>ξ₀ = ${pretty(o.xi0)}</b>, while the trapping condition is <b>|ξ₀| &lt; ${pretty(o.xc)}</b>. The orbit is ${o.trapped?'reflected between two mirror points (at poloidal angles ±'+pretty(o.thetaB*180/Math.PI)+'°)':'circulating, without a mirror reversal'}.<br><br>Approximate poloidal field <b>B<sub>θ</sub> ≈ ${pretty(o.Btheta)} T</b>. ${o.trapped?'For a collisionless banana, the full orbit is bounded: the radial drift does not generate net diffusion.':'A passing trajectory also has bounded finite-orbit-width excursions in an axisymmetric tokamak.'}`;
- get('orbitMetrics').innerHTML=orbitMetric('Thermal Larmor radius ρₜₕ',lengthFmt(o.sp.rho),'vₜₕ/Ωc · speed √(T/m)')+orbitMetric('Perpendicular gyro-radius ρ⊥',lengthFmt(o.rhoPerp),'ρₜₕ √(1−ξ₀²)')+orbitMetric('Cyclotron period',timeFmt(2*Math.PI/(Math.abs(o.charge)*p.B/o.m)),'2π/Ωc')+orbitMetric(o.trapped?'Bounce period τb':'Poloidal transit period',timeFmt(o.period),'analytic orbit estimate')+orbitMetric('Bounce scale q_loc R/v√ε',timeFmt(o.tauDeep),'order of magnitude · both species')+orbitMetric('Banana width scaling Δb',lengthFmt(o.bananaScale),'q_loc ρₜₕ/√ε · trapped scaling')+orbitMetric('Estimated banana width (pitch)',o.trapped?lengthFmt(o.width):'n/a','2m v|ξ₀|/(|Ze|Bθ)')+orbitMetric('Detrapping scale ε/ν',timeFmt(1/o.effNu),'scattering across trapped interval');
+ get('orbitReadout').innerHTML=`<b>Test-particle energy: ${pretty(state.Eorbit)} keV (independent of Tₑ/Tᵢ).</b><br>Using <b>q<sub>loc</sub> = ${pretty(cLaunch.qLocal)}</b> at the starting radius (3D integration follows q(r)). At the ${loc?'selected launch angle':'outer midplane'}, <b>ξ₀ = ${pretty(o.xi0)}</b>, while the local mirror estimate is <b>|ξ₀| &lt; ${pretty(o.xcLocal)}</b> (equivalent outboard pitch |ξ|=${pretty(Math.abs(o.xiOutboard))}; outboard threshold ${pretty(o.xc)}). The orbit is ${o.trapped?'reflected between two mirror points (at poloidal angles ±'+pretty(o.thetaB*180/Math.PI)+'°)':'circulating, without a mirror reversal'}.<br><br>Approximate poloidal field <b>B<sub>θ</sub> ≈ ${pretty(o.Btheta)} T</b>. ${o.trapped?'For a collisionless banana, the full orbit is bounded: the radial drift does not generate net diffusion.':'A passing trajectory also has bounded finite-orbit-width excursions in an axisymmetric tokamak.'}`;
+ get('orbitMetrics').innerHTML=orbitMetric('Test-particle energy E₀',pretty(state.Eorbit)+' keV','independent of plasma temperatures')+orbitMetric('Initial Larmor radius ρ₀',lengthFmt(o.sp.rho),'test particle; nominal B')+orbitMetric('Perpendicular gyro-radius ρ⊥',lengthFmt(o.rhoPerp),'local B at launch; initial pitch ξ₀')+orbitMetric('Cyclotron period',timeFmt(2*Math.PI/(Math.abs(o.charge)*p.B/o.m)),'2π/Ωc')+orbitMetric(o.trapped?'Bounce period τb':'Poloidal transit period',timeFmt(o.period),'analytic orbit estimate')+orbitMetric('Bounce scale q_loc R/v√ε',timeFmt(o.tauDeep),'order of magnitude · both species')+orbitMetric('Banana width scaling Δb',lengthFmt(o.bananaScale),'q_loc ρ₀/√ε · trapped scaling')+orbitMetric('Estimated banana width (pitch)',o.trapped?lengthFmt(o.width):'n/a','2m v|ξ₀|/(|Ze|Bθ)')+orbitMetric('Detrapping scale ε/ν',timeFmt(1/o.effNu),'bulk-thermal collision estimate; not used by orbit integrator');
  const near=Math.abs(Math.abs(o.xi0)-o.xc)<.03;let warns=[];
  if(Math.abs(o.xi0)<.01)warns.push('At ξ₀≈0 the idealized particle is near the magnetic minimum with negligible parallel motion; a normal banana is not well defined.');
  if(near)warns.push('Close to trapped/passing boundary: bounce and transit periods become very large; simple asymptotic formulas are less reliable.');
  if(o.width>p.a*.3)warns.push('Estimated banana width is a substantial fraction of a: local and small-orbit-width approximations are questionable.');
  if(radScale>1.05)warns.push(`Radial variations are magnified ×${pretty(radScale)} for visibility; all reported widths and times refer to the unscaled physical orbit.`);
  if(mode==='stellarator')warns.push('This orbit drawing uses an axisymmetric circular tokamak reference model; stellarator helical-trapped orbits require a 3D B(R,Z,φ) field and are not simulated here.');
+ if(loc)warns.push('Transport coefficients are still evaluated at the sidebar r/a. The selected orbit-launch radius is independent.');
+ if(orbitRelativisticNote())warns.push('For energetic electrons, relativistic corrections may matter; this guiding-centre integrator assumes nonrelativistic motion.');
  get('orbitWarnings').innerHTML=warns.length?`<div class="notice"><b>Orbit display notes:</b> ${warns.map(escapeHTML).join(' ')}</div>`:'';
  get('orbitEquations').innerHTML=`<p>Local large-aspect-ratio benchmark at the selected radius: B(θ) ≈ B₀/(1+εcosθ), B<sub>θ</sub>≈εB/q<sub>loc</sub>. At the outboard midplane ξ₀=v∥/v and μ is conserved, so ξ(θ)²=1−(1−ξ₀²)B(θ)/B<sub>min</sub>. Trapping occurs if |ξ₀| &lt; √[2ε/(1+ε)]. The bounce or transit period is found by numerically integrating dt≈q<sub>loc</sub>R₀dθ/(v|ξ(θ)|).</p><p>The numerical 2D/3D trajectory is integrated with B=Bφeφ+Bθeθ, Bφ=B₀R₀/R, Bθ=rBφ/[q(r)R₀], where q(r)=q₀+(qₐ−q₀)(r/a)², and the standard first-order magnetic guiding-centre equations B* = B+(mv∥/Ze)∇×b, B*∥=b·B*, dX/dt = [v∥B*+(μ/Ze)b×∇B]/B*∥, dv∥/dt = −(μ/m)B*·∇B/B*∥. A fourth-order Runge–Kutta step is used; no collisions, electric fields or turbulent fluctuations. The analytic width and time scalings evaluate q at the initial surface; only the 3D field uses the full prescribed q(r). The q profile is not a self-consistent equilibrium reconstruction.</p>`;
  const pts=orbitViewer.path2D;const k=Math.min(pts.length-1,Math.floor(orbitViewer.phase*(pts.length-1)));
@@ -1773,7 +1895,7 @@ function orbitAnimate(ts){
  paintMovingDot3D();
  requestAnimationFrame(orbitAnimate);
 }
-get('orbitSpecies').addEventListener('change',e=>{orbitViewer.species=e.target.value;renderOrbits(last)});
+get('orbitSpecies').addEventListener('change',e=>{orbitViewer.species=e.target.value;renderOrbits(last);orbitLaunchBadge()});
 install3DControls();
 get('playOrbit').addEventListener('click',()=>{orbitViewer.playing=!orbitViewer.playing;get('playOrbit').textContent=orbitViewer.playing?'Pause animation':'Play animation';});
 get('saveOrbit').addEventListener('click',()=>downloadBlob(new Blob([orbitViewer.svg],{type:'image/svg+xml;charset=utf-8'}),'guiding-centre-orbit-schematic.svg'));
@@ -1785,8 +1907,8 @@ let savedTokamak={...defaults},savedStellarator=null,savedRFP=null;
 function activateDevice(which){
  if(mode===which){refresh();return}
  if(mode==='tokamak')savedTokamak={...state};else if(mode==='stellarator')savedStellarator={...state};else savedRFP={...state};
- if(which==='stellarator')setState(savedStellarator||{...state,n19:10,Te:8,Ti:6,B:2.5,R:5.55,a:.53,q0:1.1,qa:1.1,ra:.52,epsh:.05,Er:-10,pitch:.24},'stellarator');
- else if(which==='rfp')setState(savedRFP||{...defaults,n19:5,Te:1,Ti:.8,B:.65,R:2,a:.46,ra:.53,A:2,Z:1,Zeff:1,pitch:.10},'rfp');
+ if(which==='stellarator')setState(savedStellarator||{...state,n19:10,Te:8,Ti:6,B:2.5,R:5.55,a:.53,q0:1.1,qa:1.1,ra:.52,epsh:.05,Er:-10,Eorbit:3,pitch:.24},'stellarator');
+ else if(which==='rfp')setState(savedRFP||{...defaults,n19:5,Te:1,Ti:.8,B:.65,R:2,a:.46,ra:.53,A:2,Z:1,Zeff:1,Eorbit:.4,pitch:.10},'rfp');
  else setState(savedTokamak,'tokamak');
 }
 get('tokBtn').addEventListener('click',()=>activateDevice('tokamak'));
@@ -1813,8 +1935,8 @@ get('rfpPlotView').addEventListener('change',ev=>{rfpPlotView=ev.target.value;re
 
 get('presetHot').addEventListener('click',()=>setState({...defaults},'tokamak'));
 get('presetCold').addEventListener('click',()=>setState({...defaults,n19:55,Te:.25,Ti:.25,B:3,R:3,a:1.2,ra:.65,q0:1.4,qa:5.2},'tokamak'));
-get('presetRFP').addEventListener('click',()=>{rfpTopology='shax';get('rfpTopology').value=rfpTopology;setState({...defaults,n19:5,Te:1,Ti:.8,B:.65,R:2,a:.46,ra:.53,A:2,Z:1,Zeff:1,pitch:.10},'rfp');});
-get('presetStel').addEventListener('click',()=>setState({...defaults,n19:10,Te:8,Ti:6,B:2.5,epsh:.05,Er:-10,R:5.55,a:.53,q0:1.1,qa:1.1,ra:.52,pitch:.24},'stellarator'));
+get('presetRFP').addEventListener('click',()=>{rfpTopology='shax';get('rfpTopology').value=rfpTopology;setState({...defaults,n19:5,Te:1,Ti:.8,B:.65,R:2,a:.46,ra:.53,A:2,Z:1,Zeff:1,Eorbit:.4,pitch:.10},'rfp');});
+get('presetStel').addEventListener('click',()=>setState({...defaults,n19:10,Te:8,Ti:6,B:2.5,epsh:.05,Er:-10,R:5.55,a:.53,q0:1.1,qa:1.1,ra:.52,Eorbit:3,pitch:.24},'stellarator'));
 get('reset').addEventListener('click',()=>setState({...defaults},'tokamak'));
 get('particlePlot').addEventListener('click',()=>{plotMode='particle';if(mode==='tokamak'&&last)renderTokamak(last)});
 get('heatPlot').addEventListener('click',()=>{plotMode='heat';if(mode==='tokamak'&&last)renderTokamak(last)});
@@ -1827,11 +1949,11 @@ get('csv').addEventListener('click',()=>{
    {configuration:mode,n19:state.n19,Te:state.Te,Ti:state.Ti,B_nominal:state.B,R_reference_for_scaling:state.R,a_reference_for_scaling:state.a,ra:state.ra,A:state.A,Z:state.Z,Zeff:state.Zeff,lnL:state.lnL,epsh_assumed:state.epsh,Er_prescribed_kV_m:state.Er,radial_drift_multiplier:state.geom,pitch:state.pitch,nu_e_s_1:c.nue,nu_i_s_1:c.nui};
  if(mode==='tokamak'){
   const o=orbitModel(c);
-  Object.assign(vals,{q_profile:"q(r)=q0+(qa-q0)*(r/a)^2",epsilon:c.eps,r_m:c.r,nuStar_e:c.starE,nuStar_i:c.starI,D_class_proxy_m2_s:c.e.Dcl,D_particle_electron_scale_proxy_m2_s:c.e.neo,chi_e_proxy_m2_s:c.e.neo,chi_i_proxy_m2_s:c.i.neo,regime_e:c.e.regime,regime_i:c.i.regime,orbit_model:'axisymmetric circular tokamak',orbit_species:orbitViewer.species,orbit_pitch:state.pitch,orbit_LarmorPerp_m:o.rhoPerp,orbit_analytic_period_s:o.period,orbit_analytic_banana_width_m:o.trapped?o.width:'n/a',bootstrap_local_j_A_m2:bootstrapLast?bootstrapLast.j:'n/a',bootstrap_I_MA:bootstrapLast?bootstrapLast.Ibs/1e6:'n/a',bootstrap_fraction_percent:bootstrapLast?bootstrapLast.fraction:'n/a',bootstrap_beta_p:bootstrapLast?bootstrapLast.betaP:'n/a',bootstrap_assumed_Ip_MA:bootstrapLast?bootstrapLast.Ip/1e6:'n/a'});
+  Object.assign(vals,{q_profile:"q(r)=q0+(qa-q0)*(r/a)^2",epsilon:c.eps,r_m:c.r,nuStar_e:c.starE,nuStar_i:c.starI,D_class_proxy_m2_s:c.e.Dcl,D_particle_electron_scale_proxy_m2_s:c.e.neo,chi_e_proxy_m2_s:c.e.neo,chi_i_proxy_m2_s:c.i.neo,regime_e:c.e.regime,regime_i:c.i.regime,orbit_model:'axisymmetric circular tokamak',orbit_species:orbitViewer.species,orbit_energy_keV:state.Eorbit,orbit_speed_m_s:orbitSpeed(orbitViewer.species==='electron'?me:state.A*mp),orbit_pitch:state.pitch,orbit_LarmorPerp_m:o.rhoPerp,orbit_analytic_period_s:o.period,orbit_analytic_banana_width_m:o.trapped?o.width:'n/a',bootstrap_local_j_A_m2:bootstrapLast?bootstrapLast.j:'n/a',bootstrap_I_MA:bootstrapLast?bootstrapLast.Ibs/1e6:'n/a',bootstrap_fraction_percent:bootstrapLast?bootstrapLast.fraction:'n/a',bootstrap_beta_p:bootstrapLast?bootstrapLast.betaP:'n/a',bootstrap_assumed_Ip_MA:bootstrapLast?bootstrapLast.Ip/1e6:'n/a'});
  }else if(mode==='stellarator'){
   const w=orbitViewer.gc;
-  Object.assign(vals,{OmegaE_generic_s_1:c.omegaE,stellarator_D_e_scaling_proxy_m2_s:c.stellarE.chosen,stellarator_D_i_scaling_proxy_m2_s:c.stellarI.chosen,stellarator_e_branch_heuristic:c.stellarE.regime,stellarator_i_branch_heuristic:c.stellarI.regime,stellarator_fluxes_ambipolar:'not solved',orbit_model:'W7-X input-derived boundary and synthetic interior field',orbit_derived_from_equilibrium:'no',orbit_species:orbitViewer.species,orbit_pitch:state.pitch,orbit_mirror_reversals_observed:w?w.bounces:'n/a',orbit_sample_duration_s:w?w.duration:'n/a',orbit_modeled_flux_label_span_m:w?w.rMax-w.rMin:'n/a',orbit_illustrative_iota:w?w.init.iota:'n/a',W7X_shape_source:W7X_SOURCE});
- }else{const w=orbitViewer.gc;Object.assign(vals,{orbit_model:rfpTopology==='shax'?'reference-inspired synthetic m1n7 SHAx (not equilibrium reconstruction)':rfpOrbitField==='tearing'?'Taylor/Bessel + synthetic m1 n7..18 perturbation':'axisymmetric Taylor/Bessel RFP (no tearing)',orbit_species:orbitViewer.species,orbit_pitch:state.pitch,orbit_mirror_reversals_observed:w?w.bounces:'n/a',orbit_duration_s:w?w.duration:'n/a',orbit_modeled_radial_span_m:w?w.rMax-w.rMin:'n/a',orbit_energy_error:w?w.energyErr:'n/a',orbit_fieldline_radial_span_m:w?w.fieldLineSpan:'n/a',mh_radial_perturbation_RMS_at_u_0p5:rfpTopology==='mh'&&rfpOrbitField==='tearing'?rfpPerturbRMS():'n/a',poincare_toroidal_turns:rfpTopology==='mh'?get('rfpPoincareTurns').value:'n/a',poincare_note:'fixed-toroidal section of synthetic field lines; not GC orbits'});
+  Object.assign(vals,{OmegaE_generic_s_1:c.omegaE,stellarator_D_e_scaling_proxy_m2_s:c.stellarE.chosen,stellarator_D_i_scaling_proxy_m2_s:c.stellarI.chosen,stellarator_e_branch_heuristic:c.stellarE.regime,stellarator_i_branch_heuristic:c.stellarI.regime,stellarator_fluxes_ambipolar:'not solved',orbit_model:'W7-X input-derived boundary and synthetic interior field',orbit_derived_from_equilibrium:'no',orbit_species:orbitViewer.species,orbit_energy_keV:state.Eorbit,orbit_speed_m_s:orbitSpeed(orbitViewer.species==='electron'?me:state.A*mp),orbit_pitch:state.pitch,orbit_mirror_reversals_observed:w?w.bounces:'n/a',orbit_sample_duration_s:w?w.duration:'n/a',orbit_modeled_flux_label_span_m:w?w.rMax-w.rMin:'n/a',orbit_illustrative_iota:w?w.init.iota:'n/a',W7X_shape_source:W7X_SOURCE});
+ }else{const w=orbitViewer.gc;Object.assign(vals,{orbit_model:rfpTopology==='shax'?'reference-inspired synthetic m1n7 SHAx (not equilibrium reconstruction)':rfpOrbitField==='tearing'?'Taylor/Bessel + synthetic m1 n7..18 perturbation':'axisymmetric Taylor/Bessel RFP (no tearing)',orbit_species:orbitViewer.species,orbit_energy_keV:state.Eorbit,orbit_speed_m_s:orbitSpeed(orbitViewer.species==='electron'?me:state.A*mp),orbit_pitch:state.pitch,orbit_mirror_reversals_observed:w?w.bounces:'n/a',orbit_duration_s:w?w.duration:'n/a',orbit_modeled_radial_span_m:w?w.rMax-w.rMin:'n/a',orbit_energy_error:w?w.energyErr:'n/a',orbit_fieldline_radial_span_m:w?w.fieldLineSpan:'n/a',mh_radial_perturbation_RMS_at_u_0p5:rfpTopology==='mh'&&rfpOrbitField==='tearing'?rfpPerturbRMS():'n/a',poincare_toroidal_turns:rfpTopology==='mh'?get('rfpPoincareTurns').value:'n/a',poincare_note:'fixed-toroidal section of synthetic field lines; not GC orbits'});
  }
  const rows=[Object.keys(vals).join(','),Object.values(vals).map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')];
  downloadBlob(new Blob([rows.join('\n')],{type:'text/csv'}),'plasma-transport-'+mode+'-illustrative.csv');
